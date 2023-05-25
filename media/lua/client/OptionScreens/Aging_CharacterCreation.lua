@@ -29,6 +29,7 @@ function CharacterCreationHeader:create()
     self.ageEntry:setOnlyNumbers(true)
     self.ageEntry:setMaxTextLength(2)
     self.ageEntry.onTextChange = CharacterCreationHeader.onTextChangeAge
+    self.ageEntry:setValid(true)
 	self:addChild(self.ageEntry)
 
 end
@@ -38,9 +39,13 @@ end
 local og_CharacterCreationMainOnOptionMouseDown = CharacterCreationMain.onOptionMouseDown
 function CharacterCreationMain:onOptionMouseDown(button, x, y)
     if button.internal == "NEXT" then
-        if CharacterCreationHeader.instance.ageEntry.valid then
-            AgingMod.age = self.ageEntry:getInternalText()
+        print("Clicked PLAY")
+        -- This is pretty shitty but hey not really my fault :) goddamn you tis
+        if CharacterCreationHeader.instance.ageEntry.borderColor.a == 1 then
+            AgingMod.age = CharacterCreationHeader.instance.ageEntry:getInternalText()
             og_CharacterCreationMainOnOptionMouseDown(self, button, x, y)
+        else
+            print("Age is not valid!")
         end
     else
         og_CharacterCreationMainOnOptionMouseDown(self, button, x, y)
@@ -48,3 +53,16 @@ function CharacterCreationMain:onOptionMouseDown(button, x, y)
 
 
 end
+
+
+
+
+Events.OnGameStart.Add(function()
+
+
+    print("Initialized world, printing current age")
+    print(AgingMod.age)
+    print("Fuck off now")
+
+
+end)
