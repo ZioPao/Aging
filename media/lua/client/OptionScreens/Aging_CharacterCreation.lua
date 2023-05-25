@@ -1,8 +1,59 @@
+
+local function SetHairColor(age)
+
+    local hairColors = MainScreen.instance.desc:getCommonHairColor()
+	local hairColors1 = {}
+	local info = ColorInfo.new()
+
+
+    local greyScaler = 1
+    if age > 40 then
+        local ageScale = age/120
+        greyScaler = 1 - ageScale
+    end
+
+
+
+
+	for i=1,hairColors:size() do
+		local color = hairColors:get(i-1)
+		-- we create a new info color to desaturate it (like in the game)
+		info:set(color:getRedFloat(), color:getGreenFloat(), color:getBlueFloat(), 1)
+		--		info:desaturate(0.5)
+
+        print(i)
+        print("Current color: R=" .. info:getR()/greyScaler .. ", G=" .. info:getG()/greyScaler .. ", B=" .. info:getB()/greyScaler)
+
+
+		table.insert(hairColors1, { r=info:getR() / greyScaler, g=info:getG() / greyScaler, b=info:getB() / greyScaler })
+	end
+    CharacterCreationMain.instance.colorPickerHair:setColors(hairColors1, math.min(#hairColors1, 10), math.ceil(#hairColors1 / 10))
+    CharacterCreationMain.instance.colorPickerHair:picked(true)
+
+end
+
+
+
 function CharacterCreationHeader:onTextChangeAge()
     local age = CharacterCreationHeader.instance.ageEntry:getInternalText()
     if age and age ~= "" then
         age = tonumber(age)
-        CharacterCreationHeader.instance.ageEntry:setValid(age > 18 and age < 100)
+        AgingMod.age = age
+        CharacterCreationHeader.instance.ageEntry:setValid(age > 17 and age < 101)
+
+        print("Age is " .. tostring(age))
+        if age > 50 then
+            print("Higher than 50, setting grey hair")
+            local greyHair = { {r=0.9,g=0.9,b=0.9}, 
+            {r=0.85, g=0.85, b=0.85}, {r=0.8, g=0.8, b=0.8},
+            {r=0.75, g=0.75, b=0.75}, {r=0.7, g=0.7, b=0.7},
+        
+        }
+        end
+
+
+        SetHairColor(age)
+
     else
         CharacterCreationHeader.instance.ageEntry:setValid(false)
     end
@@ -34,8 +85,6 @@ function CharacterCreationHeader:create()
 
 end
 
-
-
 local og_CharacterCreationMainOnOptionMouseDown = CharacterCreationMain.onOptionMouseDown
 function CharacterCreationMain:onOptionMouseDown(button, x, y)
     if button.internal == "NEXT" then
@@ -53,6 +102,42 @@ function CharacterCreationMain:onOptionMouseDown(button, x, y)
 
 
 end
+
+
+
+
+local function hairColorThing()
+    local hairColors = MainScreen.instance.desc:getCommonHairColor();
+	local hairColors1 = {}
+	local info = ColorInfo.new()
+	for i=1,hairColors:size() do
+		local color = hairColors:get(i-1)
+		-- we create a new info color to desaturate it (like in the game)
+		info:set(color:getRedFloat(), color:getGreenFloat(), color:getBlueFloat(), 1)
+		--		info:desaturate(0.5)
+		table.insert(hairColors1, { r=info:getR(), g=info:getG(), b=info:getB() })
+	end
+	local hairColorBtn = ISButton:new(self.xOffset+xColor, self.yOffset, 45, comboHgt, "", self, CharacterCreationMain.onHairColorMouseDown)
+	hairColorBtn:initialise()
+	hairColorBtn:instantiate()
+	local color = hairColors1[1]
+	hairColorBtn.backgroundColor = {r=color.r, g=color.g, b=color.b, a=1}
+	self.characterPanel:addChild(hairColorBtn)
+	self.hairColorButton = hairColorBtn
+	self.yOffset = self.yOffset + comboHgt + 4;
+
+	self.colorPickerHair = ISColorPicker:new(0, 0, nil)
+	self.colorPickerHair:initialise()
+	self.colorPickerHair.keepOnScreen = true
+	self.colorPickerHair.pickedTarget = self
+	self.colorPickerHair.resetFocusTo = self.characterPanel
+	self.colorPickerHair:setColors(hairColors1, math.min(#hairColors1, 10), math.ceil(#hairColors1 / 10))
+
+
+
+end
+
+
 
 
 
