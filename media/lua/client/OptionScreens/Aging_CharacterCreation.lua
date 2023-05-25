@@ -6,15 +6,7 @@ local function SetHairColor(age)
 	local info = ColorInfo.new()
 
 
-    local greyScaler = 1
-    if age > 40 then
-        local ageScale = age/120
-        greyScaler = 1 - ageScale
-    end
-
-
-
-
+    local desaturation = age/80
 	for i=1,hairColors:size() do
 		local color = hairColors:get(i-1)
 		-- we create a new info color to desaturate it (like in the game)
@@ -22,10 +14,33 @@ local function SetHairColor(age)
 		--		info:desaturate(0.5)
 
         print(i)
-        print("Current color: R=" .. info:getR()/greyScaler .. ", G=" .. info:getG()/greyScaler .. ", B=" .. info:getB()/greyScaler)
 
 
-		table.insert(hairColors1, { r=info:getR() / greyScaler, g=info:getG() / greyScaler, b=info:getB() / greyScaler })
+        local r = info:getR() --+ greyScaler
+        local g = info:getG() --+ greyScaler
+        local b = info:getB() --+ greyScaler
+
+        local L = 0.299 * r + 0.587 * g + 0.144 * b
+
+        r = r + desaturation * (L - r)
+        g = g + desaturation * (L - g)
+        b = b + desaturation * (L - b)
+
+
+        -- if age > 40 then
+        --     r = (r+g+b)/3
+        --     g = (r+g+b)/3
+        --     b = (r+g+b)/3
+        -- end
+
+
+        if r > 1 then r = 1 end
+        if g > 1 then g = 1 end
+        if b > 1 then b = 1 end
+
+
+        print("Current color: R=" .. r .. ", G=" .. g .. ", B=" .. b)
+		table.insert(hairColors1, { r=r, g=g, b=b})
 	end
     CharacterCreationMain.instance.colorPickerHair:setColors(hairColors1, math.min(#hairColors1, 10), math.ceil(#hairColors1 / 10))
     CharacterCreationMain.instance.colorPickerHair:picked(true)
@@ -39,20 +54,16 @@ function CharacterCreationHeader:onTextChangeAge()
     if age and age ~= "" then
         age = tonumber(age)
         AgingMod.age = age
-        CharacterCreationHeader.instance.ageEntry:setValid(age > 17 and age < 101)
 
-        print("Age is " .. tostring(age))
-        if age > 50 then
-            print("Higher than 50, setting grey hair")
-            local greyHair = { {r=0.9,g=0.9,b=0.9}, 
-            {r=0.85, g=0.85, b=0.85}, {r=0.8, g=0.8, b=0.8},
-            {r=0.75, g=0.75, b=0.75}, {r=0.7, g=0.7, b=0.7},
-        
-        }
+
+        local check = age > 17 and age < 101
+        CharacterCreationHeader.instance.ageEntry:setValid(check)
+        if check then
+            SetHairColor(age)
         end
 
 
-        SetHairColor(age)
+
 
     else
         CharacterCreationHeader.instance.ageEntry:setValid(false)
@@ -74,7 +85,7 @@ function CharacterCreationHeader:create()
 	labelMaxWid = math.max(labelMaxWid, getTextManager():MeasureStringX(UIFont.Medium, getText("UI_characreation_gender")))
 
     local entryX = self.avatarPanel:getRight() + 16 + labelMaxWid + 6
-    self.ageEntry = ISTextEntryBox:new(tostring(ZombRand(19, 75)), self.genderCombo:getRight() + 6, self.surnameEntry:getBottom() + 6 + (entryHgt - 18) / 2, 115, entryHgt)
+    self.ageEntry = ISTextEntryBox:new(25, self.genderCombo:getRight() + 6, self.surnameEntry:getBottom() + 6 + (entryHgt - 18) / 2, 115, entryHgt)
 	self.ageEntry:initialise()
 	self.ageEntry:instantiate()
     self.ageEntry:setOnlyNumbers(true)
@@ -83,6 +94,7 @@ function CharacterCreationHeader:create()
     self.ageEntry:setValid(true)
 	self:addChild(self.ageEntry)
 
+    --SetHairColor(randomAge)
 end
 
 local og_CharacterCreationMainOnOptionMouseDown = CharacterCreationMain.onOptionMouseDown
