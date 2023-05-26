@@ -13,30 +13,64 @@ AgingMod.DesaturateColor = function(age, r, g, b)
     g = g + desaturation * (L - g)
     b = b + desaturation * (L - b)
 
+
+    if age > 40 and (r < desaturation or g < desaturation or b < desaturation) then
+        r = 0.85
+        g = 0.85
+        b = 0.85
+    end
+
+
+
     return ImmutableColor.new(r,g,b,1)
 
 end
 
 
 AgingMod.SetHairColor = function(age)
-    local humanVisual = getPlayer():getHumanVisual()
+    print("Setting new hair color")
+    local player = getPlayer()
+    local humanVisual = player:getHumanVisual()
     local baseHairColor = humanVisual:getHairColor()
-    local modifiedColor = AgingMod.DesaturateColor(age, baseHairColor.r, baseHairColor.g, baseHairColor.b)
+    local modifiedColor = AgingMod.DesaturateColor(age, baseHairColor:getRedFloat(), baseHairColor:getGreenFloat(), baseHairColor:getBlueFloat())
 
 	humanVisual:setHairColor(modifiedColor)
 	humanVisual:setBeardColor(modifiedColor)
 	humanVisual:setNaturalHairColor(modifiedColor)
 	humanVisual:setNaturalBeardColor(modifiedColor)
+    player:resetModel()
+	sendVisual(player)
 
 end
 
 AgingMod.UpdateAge = function()
-    local dayInfo = AgingMod.climateManager:getCurrentDay()
-    local ageData = getPlayer():getModData()["AgeMod"]
 
-    local currentYear = dayInfo:getYear()
-    local currentMonth = dayInfo:getMonth()
-    local currentDay = dayInfo:getDay()
+
+    -------------------
+    -- -- DEBUG
+    -- local t = getGameTime()
+    -- t:setYear(t:getYear() + 1)
+
+
+
+    -- ------------------
+
+
+
+
+    print("Checking if we need to advance age")
+    local ageData = getPlayer():getModData()["AgeMod"]
+    local gameTime = getGameTime()
+
+    local currentYear = gameTime:getYear()
+    local currentMonth = gameTime:getMonth()
+    local currentDay = gameTime:getDay()
+
+
+    print("Starting year: " .. tostring(ageData.startingYear))
+
+    print("Current year: " .. tostring(currentYear))
+    print("Current age: " .. tostring(ageData.age))
 
     -- 01/05/1993
     --02/06/1994
@@ -61,38 +95,40 @@ AgingMod.UpdateAge = function()
     end
 
 
-
-
+    print("New age: " .. tostring(ageData.age))
 
 end
 
 
 AgingMod.Setup = function()
     -- TODO Ask player to set age if they did not
-
+    print("Setting up age mod")
     local player = getPlayer()
     local ageData = player:getModData()["AgeMod"]
-    local dayInfo = AgingMod.climateManager:getCurrentDay()
 
     if ageData == nil or ageData == 0 then
 
+        local gameTime = getGameTime()
         player:getModData()["AgeMod"] = {}
         ageData = player:getModData()["AgeMod"]
         ageData.age = AgingMod.age
-        ageData.startingDay = dayInfo:getDay()
-        ageData.startingMonth = dayInfo:getMonth()
-        ageData.startingYear = dayInfo:getYear()
-    end
+        ageData.startingDay = gameTime:getDay()
+        ageData.startingMonth = gameTime:getMonth()
+        ageData.startingYear = gameTime:getYear()
 
-    Events.EveryDays.Add(AgingMod.UpdateAge)
+        print("Starting year: " .. tostring(ageData.startingYear))
+    end
+    --AgingMod.UpdateAge()
+    Events.EveryHours.Add(AgingMod.UpdateAge)
 
 
 end
 
 
 Events.OnGameStart.Add(AgingMod.Setup)
-Events.OnPlayerDeath(function()
-    Events.EveryDays.Remove(AgingMod.UpdateAge)
+
+Events.OnPlayerDeath.Add(function()
+    Events.EveryHours.Remove(AgingMod.UpdateAge)
 end)
 
 
