@@ -6,7 +6,10 @@ AgingMod.climateManager = getClimateManager()
 
 AgingMod.DesaturateColor = function(age, r, g, b)
 
-    local desaturation = age/100
+
+    local avgColor = (r+g+b)/3
+
+    local desaturation = (age/1000)*avgColor        -- Way lower than the creation menu one since it's gonna happen every year
     local L = 0.299 * r + 0.587 * g + 0.144 * b
 
     r = r + desaturation * (L - r)
@@ -20,12 +23,12 @@ AgingMod.DesaturateColor = function(age, r, g, b)
         b = 0.85
     end
 
+    print("New color: r="..tostring(r)..",g="..tostring(g)..",b="..tostring(b))
 
 
     return ImmutableColor.new(r,g,b,1)
 
 end
-
 
 AgingMod.SetHairColor = function(age)
     print("Setting new hair color")
@@ -34,26 +37,27 @@ AgingMod.SetHairColor = function(age)
     local baseHairColor = humanVisual:getHairColor()
     local modifiedColor = AgingMod.DesaturateColor(age, baseHairColor:getRedFloat(), baseHairColor:getGreenFloat(), baseHairColor:getBlueFloat())
 
-	humanVisual:setHairColor(modifiedColor)
+    humanVisual:setHairColor(modifiedColor)
 	humanVisual:setBeardColor(modifiedColor)
 	humanVisual:setNaturalHairColor(modifiedColor)
 	humanVisual:setNaturalBeardColor(modifiedColor)
     player:resetModel()
 	sendVisual(player)
+	triggerEvent("OnClothingUpdated", player)
 
 end
 
 AgingMod.UpdateAge = function()
 
 
-    -------------------
-    -- -- DEBUG
-    -- local t = getGameTime()
-    -- t:setYear(t:getYear() + 1)
+    -----------------
+    -- DEBUG
+    local t = getGameTime()
+    t:setYear(t:getYear() + 1)
 
 
 
-    -- ------------------
+    ------------------
 
 
 
@@ -72,6 +76,8 @@ AgingMod.UpdateAge = function()
     print("Current year: " .. tostring(currentYear))
     print("Current age: " .. tostring(ageData.age))
 
+    local oldAge = tonumber(ageData.age)
+
     -- 01/05/1993
     --02/06/1994
     local yearDiff = currentYear - ageData.startingYear -- 1
@@ -82,12 +88,11 @@ AgingMod.UpdateAge = function()
             if dayDiff >= 0 then
                 ageData.age = ageData.age + yearDiff
                 ageData.startingYear = currentYear
-                AgingMod.SetHairColor(ageData.age)
+                --AgingMod.SetHairColor(ageData.age)
 
             end
         elseif yearDiff > 1 then
             ageData.age = ageData.age + yearDiff - 1
-            AgingMod.SetHairColor(ageData.age)
 
             -- Bit of a hacky way to handle it but I'm too dumb to think of something better
             ageData.startingYear = currentYear
@@ -96,9 +101,12 @@ AgingMod.UpdateAge = function()
 
 
     print("New age: " .. tostring(ageData.age))
-
+    -- Since it's gonna continue adding onto the desaturation, in case the player logs off for more than a year in game,
+    -- we want to keep track of that to set their correct hair color
+    for i=oldAge, ageData.age, 1 do
+        AgingMod.SetHairColor(i)
+    end
 end
-
 
 AgingMod.Setup = function()
     -- TODO Ask player to set age if they did not
@@ -119,7 +127,7 @@ AgingMod.Setup = function()
         print("Starting year: " .. tostring(ageData.startingYear))
     end
     --AgingMod.UpdateAge()
-    Events.EveryHours.Add(AgingMod.UpdateAge)
+    Events.EveryTenMinutes.Add(AgingMod.UpdateAge)
 
 
 end
@@ -128,7 +136,7 @@ end
 Events.OnGameStart.Add(AgingMod.Setup)
 
 Events.OnPlayerDeath.Add(function()
-    Events.EveryHours.Remove(AgingMod.UpdateAge)
+    Events.EveryTenMinutes.Remove(AgingMod.UpdateAge)
 end)
 
 
