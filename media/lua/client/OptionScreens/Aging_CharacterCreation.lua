@@ -8,7 +8,8 @@ local function SetHairColor(age)
     local info = ColorInfo.new()
 
 
-    local desaturation = age/80
+    local desaturation = age/100
+    print("Desaturation: " .. tostring(desaturation))
     for i=1,hairColors:size() do
         local color = hairColors:get(i-1)
         -- we create a new info color to desaturate it (like in the game)
@@ -35,19 +36,41 @@ local function SetHairColor(age)
         --     b = (r+g+b)/3
         -- end
 
+        if age > 40 and (r < desaturation or g < desaturation or b < desaturation) then
+            print("Invalid hair color")
+        else
 
-        if r > 1 then r = 1 end
-        if g > 1 then g = 1 end
-        if b > 1 then b = 1 end
+            print("Current color: R=" .. r .. ", G=" .. g .. ", B=" .. b)
+            table.insert(hairColors1, { r=r, g=g, b=b})
+        end
 
 
-        --print("Current color: R=" .. r .. ", G=" .. g .. ", B=" .. b)
-        table.insert(hairColors1, { r=r, g=g, b=b})
+
+        -- if r < 0.4 or g < 0.4 or b < 0.4 then
+        --     r = 0.75
+        --     g = 0.75
+        --     b = 0.75
+        -- end
+
+
+    end
+
+    if hairColors[1] == nil then
+        table.insert(hairColors1, {r=0.8, g=0.8, b=0.8})
     end
     CharacterCreationMain.instance.colorPickerHair:setColors(hairColors1, math.min(#hairColors1, 10), math.ceil(#hairColors1 / 10))
     -- TODO Force apply hair!
-    CharacterCreationMain.instance.colorPickerHair.index = 1
-    CharacterCreationMain.instance.colorPickerHair:picked(true)
+
+    local color = CharacterCreationMain.instance.colorPickerHair.colors[1]
+    CharacterCreationMain.instance.hairColorButton.backgroundColor = { r=color.r, g=color.g, b=color.b, a = 1 }
+	local desc = MainScreen.instance.desc
+	local immutableColor = ImmutableColor.new(color.r, color.g, color.b, 1)
+	desc:getHumanVisual():setHairColor(immutableColor)
+	desc:getHumanVisual():setBeardColor(immutableColor)
+	desc:getHumanVisual():setNaturalHairColor(immutableColor)
+	desc:getHumanVisual():setNaturalBeardColor(immutableColor)
+	CharacterCreationHeader.instance.avatarPanel:setSurvivorDesc(desc)
+
 
 end
 
@@ -56,13 +79,17 @@ end
 local og_CharacterCreationMainCreateHairTypeBtn = CharacterCreationMain.createHairTypeBtn
 function CharacterCreationMain:createHairTypeBtn()
     og_CharacterCreationMainCreateHairTypeBtn(self)
-    --SetHairColor(25)
-    print("Forcing index 1 for hair color")
-    CharacterCreationMain.instance.colorPickerHair.index = 1
-    CharacterCreationMain.instance:removeChild( CharacterCreationMain.instance.colorPickerHair)
-	CharacterCreationMain.instance:addChild( CharacterCreationMain.instance.colorPickerHair)
-    CharacterCreationMain.instance.colorPickerHair:picked(true)
+    SetHairColor(25)
+    -- print("Forcing index 1 for hair color")
+    -- CharacterCreationMain.instance.colorPickerHair:picked(true)
 
+    -- local color = self.colorPickerHair.colors[1]
+    -- CharacterCreationMain.instance.hairColorButton.backgroundColor = { r=color.r, g=color.g, b=color.b, a = 1 }
+	-- local desc = MainScreen.instance.desc
+	-- local immutableColor = ImmutableColor.new(color.r, color.g, color.b, 1)
+	-- desc:getHumanVisual():setNaturalHairColor(immutableColor)
+	-- desc:getHumanVisual():setNaturalBeardColor(immutableColor)
+	-- CharacterCreationHeader.instance.avatarPanel:setSurvivorDesc(desc)
 end
 
 
@@ -128,3 +155,5 @@ function CharacterCreationMain:onOptionMouseDown(button, x, y)
 
 
 end
+
+
