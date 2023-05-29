@@ -1,16 +1,36 @@
 AgingMod_ChoiceUI = ISPanel:derive("AgingMod_ChoiceUI")
-
 -- TODO Players shouldn't be able to close this
 
 
 
 
 -----------------------------------
+function AgingMod_ChoiceUI:onTextChangeAge()
+
+    local age = self.instance.ageEntry:getInternalText()
+    if age and age ~= "" then
+        age = tonumber(age)
+        --AgingMod.age = age
+
+
+        local check = age > 17 and age < 101
+        self.instance.ageEntry:setValid(check)
+        self.instance.saveBtn:setEnable(true)
+
+    else
+        self.instance.saveBtn:setEnable(false)
+    end
+end
+
 
 function AgingMod_ChoiceUI:close()
-	instance:setVisible(false)
-	instance:removeFromUIManager()
-	AgingMod_ChoiceUI.instance = nil
+    if self.isChoiceReady then
+        
+        self.instance:setVisible(false)
+        self.instance:removeFromUIManager()
+        AgingMod_ChoiceUI.instance = nil
+    end
+
 end
 
 function AgingMod_ChoiceUI:initialise()
@@ -24,35 +44,24 @@ end
 
 function AgingMod_ChoiceUI:onOptionMouseDown(button, x, y)
 
-    local workerData = FetchWorkerData()
+	if button.internal == "SAVE" then
+        print("Saving")
 
-	if button.internal == "CANCEL" then
-		instance:closeOpenPanels()
-		instance:close()
-    elseif workerData then
+        local age = tonumber(self.ageEntry:getText())
+        AgingMod.age = age
 
-		if button.internal == "IDENTIFICATION" and workerData.identificationCard then
-			instance.identificationPanel = instance:openPanel(instance.identificationPanel, identificationCardForm)
-		elseif button.internal == "DRIVERSLICENSE" and workerData.driversLicense then
-			instance.driversLicensePanel = instance:openPanel(instance.driversLicensePanel, driversLicenseForm)
-		elseif button.internal == "VEHICLEREGISTRATION" and workerData.vehicleRegistration then
-			instance.vehicleRegistrationPanel = instance:openPanel(instance.vehicleRegistrationPanel, vehicleRegistrationForm)
-        elseif button.internal == "EMPLOYMENTCONTRACT" and workerData.employmentContract then
-			instance.employmentContractPanel = instance:openPanel(instance.employmentContractPanel, employmentContractForm)
-        elseif button.internal == "MEDICALLICENSE" and workerData.medicalLicense then
-			instance.medicalLicensePanel = instance:openPanel(instance.medicalLicensePanel, medicalLicenseForm)
-        elseif button.internal == "PROPERTYDEED" and workerData.propertyDeed then
-			instance.propertyDeedPanel = instance:openPanel(instance.propertyDeedPanel, propertyDeedForm)
-        elseif button.internal == "OPENBROADCASTMENU" and workerData.broadcastAlarm then
-            -- Special case I guess. Opens it on the right side or something
-            instance.broadcastMenu = PZRPGovOps_SoundsListViewer.OnOpenPanel()
-		end
-	end
+        -- 25 is the starting point in case there's no other value
+        for i=25, age, 1 do
+            AgingMod.SetHairColor(i)
+        end
+        
+        self:close()
+    end
 end
 
 
 function AgingMod_ChoiceUI:create()
-	instance = AgingMod_ChoiceUI.instance
+	--instance = AgingMod_ChoiceUI.instance
 	local yOffset = 10
 
     local labelString = "Select your age"
@@ -60,17 +69,20 @@ function AgingMod_ChoiceUI:create()
 	yOffset = yOffset + 30
 
 
-	self.ageEntry = ISTextEntryBox:new("", 10, yOffset, self.width - 20, 25)
+    local baseAge = 25
+	self.ageEntry = ISTextEntryBox:new(baseAge, 10, yOffset, self.width - 20, 25)
 	self.ageEntry:initialise()
 	self.ageEntry:instantiate()
+    self.ageEntry.onTextChange = self.onTextChangeAge
 	self.ageEntry:setOnlyNumbers(true)
 	self:addChild(self.ageEntry)
 
 
-    self.saveBtn = ISButton:new(10, self.height - 35, self.width - 20, 25, "Save", self, instance.onOptionMouseDown)
+    self.saveBtn = ISButton:new(10, self.height - 35, self.width - 20, 25, "Save", self, AgingMod_ChoiceUI.onOptionMouseDown)
     self.saveBtn.internal = "SAVE"
     self.saveBtn:initialise()
     self.saveBtn:instantiate()
+    self.saveBtn:setEnable(false)
     self:addChild(self.saveBtn)
 
 end
@@ -101,6 +113,8 @@ function AgingMod_ChoiceUI:new(x, y, width, height)
     o.backgroundColor = {r=0, g=0, b=0, a=0.8}
     o.buttonBorderColor = {r=0.7, g=0.7, b=0.7, a=0.5}
     o.moveWithMouse = true
+
+    o.isChoiceReady = false
     AgingMod_ChoiceUI.instance = o
     return o
 end
