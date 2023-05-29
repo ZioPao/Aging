@@ -96,7 +96,7 @@ end
 function AgingMod_ChoiceUI.OpenPanel()
 	local UI_SCALE = getTextManager():getFontHeight(UIFont.Small) / 14
 
-    local pnl = AgingMod_ChoiceUI:new(50, 200, 250 * UI_SCALE, 70 * UI_SCALE)
+    local pnl = AgingMod_ChoiceUI:new(50, 200, 250 * UI_SCALE, 150 * UI_SCALE)
     pnl:initialise()
     pnl:addToUIManager()
     pnl:bringToTop()
