@@ -2,14 +2,14 @@ require "OptionScreens/CharacterCreationMain"
 require "OptionScreens/CharacterCreationHeader"
 
 local function SetHairColor(age)
-    print("Setting hair to age " .. tostring(age))
+    --print("Setting hair to age " .. tostring(age))
     local hairColors = MainScreen.instance.desc:getCommonHairColor()
     local hairColors1 = {}
     local info = ColorInfo.new()
 
 
     local desaturation = age/100
-    print("Desaturation: " .. tostring(desaturation))
+    --print("Desaturation: " .. tostring(desaturation))
     for i=1,hairColors:size() do
         local color = hairColors:get(i-1)
         -- we create a new info color to desaturate it (like in the game)
@@ -37,10 +37,10 @@ local function SetHairColor(age)
         -- end
 
         if age > 40 and (r < desaturation or g < desaturation or b < desaturation) then
-            print("Invalid hair color")
+            --print("Invalid hair color")
         else
 
-            print("Current color: R=" .. r .. ", G=" .. g .. ", B=" .. b)
+            --print("Current color: R=" .. r .. ", G=" .. g .. ", B=" .. b)
             table.insert(hairColors1, { r=r, g=g, b=b})
         end
 
@@ -114,7 +114,7 @@ local og_CharacterCreationHeaderCreate = CharacterCreationHeader.create
 function CharacterCreationHeader:create()
 
     og_CharacterCreationHeaderCreate(self)
-    print("Running creation header")
+    --print("Running creation header")
     local FONT_HGT_SMALL = getTextManager():getFontHeight(UIFont.Small)
     local FONT_HGT_MEDIUM = getTextManager():getFontHeight(UIFont.Medium)
     local entryHgt = math.max(FONT_HGT_SMALL + 2 * 2, FONT_HGT_MEDIUM)
@@ -141,13 +141,13 @@ end
 local og_CharacterCreationMainOnOptionMouseDown = CharacterCreationMain.onOptionMouseDown
 function CharacterCreationMain:onOptionMouseDown(button, x, y)
     if button.internal == "NEXT" then
-        print("Clicked PLAY")
+        --print("Clicked PLAY")
         -- This is pretty shitty but hey not really my fault :) goddamn you tis
         if CharacterCreationHeader.instance.ageEntry.borderColor.a == 1 then
             AgingMod.age = CharacterCreationHeader.instance.ageEntry:getInternalText()
             og_CharacterCreationMainOnOptionMouseDown(self, button, x, y)
-        else
-            print("Age is not valid!")
+        -- else
+        --     --print("Age is not valid!")
         end
     else
         og_CharacterCreationMainOnOptionMouseDown(self, button, x, y)

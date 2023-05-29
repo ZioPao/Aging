@@ -1,4 +1,5 @@
 AgingMod_ChoiceUI = ISPanel:derive("AgingMod_ChoiceUI")
+AgingMod_ChoiceUI.instance = nil
 -- TODO Players shouldn't be able to close this
 
 
@@ -7,30 +8,28 @@ AgingMod_ChoiceUI = ISPanel:derive("AgingMod_ChoiceUI")
 -----------------------------------
 function AgingMod_ChoiceUI:onTextChangeAge()
 
-    local age = self.instance.ageEntry:getInternalText()
+    local age = self.parent.ageEntry:getInternalText()
     if age and age ~= "" then
         age = tonumber(age)
         --AgingMod.age = age
 
 
         local check = age > 17 and age < 101
-        self.instance.ageEntry:setValid(check)
-        self.instance.saveBtn:setEnable(true)
+        self.parent.ageEntry:setValid(check)
+        self.parent.saveBtn:setEnable(true)
 
     else
-        self.instance.saveBtn:setEnable(false)
+        self.parent.saveBtn:setEnable(false)
     end
 end
 
 
 function AgingMod_ChoiceUI:close()
     if self.isChoiceReady then
-        
         self.instance:setVisible(false)
         self.instance:removeFromUIManager()
         AgingMod_ChoiceUI.instance = nil
     end
-
 end
 
 function AgingMod_ChoiceUI:initialise()
@@ -45,17 +44,20 @@ end
 function AgingMod_ChoiceUI:onOptionMouseDown(button, x, y)
 
 	if button.internal == "SAVE" then
-        print("Saving")
+        --print("Saving")
 
         local age = tonumber(self.ageEntry:getText())
         AgingMod.age = age
+        print("AgingMod: set " .. tostring(age))
 
         -- 25 is the starting point in case there's no other value
         for i=25, age, 1 do
             AgingMod.SetHairColor(i)
         end
-        
-        self:close()
+
+        AgingMod.Setup()
+        self.instance.isChoiceReady = true
+        self.instance:close()
     end
 end
 
@@ -66,13 +68,17 @@ function AgingMod_ChoiceUI:create()
 
     local labelString = "Select your age"
 	self.mainLabel = ISLabel:new((self.width - getTextManager():MeasureStringX(UIFont.Large, labelString)) / 2, yOffset, 25, labelString, 1, 1, 1, 1, UIFont.Large, true)
-	yOffset = yOffset + 30
+    self.mainLabel:initialise()
+    self.mainLabel:instantiate()
+    self:addChild(self.mainLabel)
+    yOffset = yOffset + 30
 
 
-    local baseAge = 25
+    local baseAge = "25"
 	self.ageEntry = ISTextEntryBox:new(baseAge, 10, yOffset, self.width - 20, 25)
 	self.ageEntry:initialise()
 	self.ageEntry:instantiate()
+    self.ageEntry:setMaxTextLength(2)
     self.ageEntry.onTextChange = self.onTextChangeAge
 	self.ageEntry:setOnlyNumbers(true)
 	self:addChild(self.ageEntry)
@@ -82,17 +88,19 @@ function AgingMod_ChoiceUI:create()
     self.saveBtn.internal = "SAVE"
     self.saveBtn:initialise()
     self.saveBtn:instantiate()
-    self.saveBtn:setEnable(false)
+    self.saveBtn:setEnable(true)
     self:addChild(self.saveBtn)
 
 end
 
 function AgingMod_ChoiceUI.OpenPanel()
+	local UI_SCALE = getTextManager():getFontHeight(UIFont.Small) / 14
 
-    local pnl = AgingMod_ChoiceUI:new(50, 200, 425, 700)
+    local pnl = AgingMod_ChoiceUI:new(50, 200, 250 * UI_SCALE, 70 * UI_SCALE)
     pnl:initialise()
     pnl:addToUIManager()
-    pnl.instance:setKeyboardFocus()
+    pnl:bringToTop()
+    --pnl.instance:setKeyboardFocus()
     return pnl
 end
 

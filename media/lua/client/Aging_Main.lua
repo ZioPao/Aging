@@ -12,16 +12,35 @@ AgingMod.DesaturateColor = function(age, r, g, b)
     local desaturation = (age/1000)*avgColor        -- Way lower than the creation menu one since it's gonna happen every year
     local L = 0.299 * r + 0.587 * g + 0.144 * b
 
-    r = r + desaturation * (L - r)
-    g = g + desaturation * (L - g)
-    b = b + desaturation * (L - b)
 
+    local addedGreyness = 0.007
 
-    if age > 40 and (r < desaturation or g < desaturation or b < desaturation) then
-        r = 0.85
-        g = 0.85
-        b = 0.85
+    r = r + desaturation * (L - r) + addedGreyness
+    g = g + desaturation * (L - g) + addedGreyness
+    b = b + desaturation * (L - b) + addedGreyness
+
+    -- Desaturation here is way lower, so we need to change it a bit on how to scale it
+    --local switchToGreyValue = desaturation * 3
+    --print(switchToGreyValue)
+
+    -- CAP
+    if r > 1 then
+        r = 1
     end
+
+    if g > 1 then
+        g = 1
+    end
+
+    if b > 1 then
+        b = 1
+    end
+
+    -- if age > 40 and (r < switchToGreyValue or g < switchToGreyValue or b < switchToGreyValue) then
+    --     r = 0.85 + ZombRandFloat(-0.01, 0.01)
+    --     g = 0.85 + ZombRandFloat(-0.01, 0.01)
+    --     b = 0.85 + ZombRandFloat(-0.01, 0.01)
+    -- end
 
     print("New color: r="..tostring(r)..",g="..tostring(g)..",b="..tostring(b))
 
@@ -31,7 +50,7 @@ AgingMod.DesaturateColor = function(age, r, g, b)
 end
 
 AgingMod.SetHairColor = function(age)
-    print("Setting new hair color")
+    --print("Setting new hair color")
     local player = getPlayer()
     local humanVisual = player:getHumanVisual()
     local baseHairColor = humanVisual:getHairColor()
@@ -50,8 +69,8 @@ end
 AgingMod.UpdateAge = function()
 
 
-    -----------------
-    -- -- DEBUG
+    ---------------
+    -- DEBUG
     -- local t = getGameTime()
     -- t:setYear(t:getYear() + 1)
 
@@ -99,7 +118,7 @@ AgingMod.UpdateAge = function()
     end
 
 
-    print("New age: " .. tostring(ageData.age))
+    --print("New age: " .. tostring(ageData.age))
     -- Since it's gonna continue adding onto the desaturation, in case the player logs off for more than a year in game,
     -- we want to keep track of that to set their correct hair color
     for i=oldAge, ageData.age, 1 do
@@ -107,53 +126,41 @@ AgingMod.UpdateAge = function()
     end
 end
 
-AgingMod.StartChoicePanel = function()
-
-
-end
 
 
 AgingMod.Setup = function()
-    -- TODO Ask player to set age if they did not
     print("Setting up age mod")
     local player = getPlayer()
     local ageData = player:getModData()["AgeMod"]
 
-    if ageData == nil or ageData == 0 then
 
-        if AgingMod.age == 0 then
-            AgingMod.StartChoicePanel()
-        end
-
-
-
-
-
-        local gameTime = getGameTime()
+    if ageData == nil or (ageData and (ageData.age == 0 or ageData.age == nil)) then
+        print("Nil or age = 0")
         player:getModData()["AgeMod"] = {}
+        local gameTime = getGameTime()
         ageData = player:getModData()["AgeMod"]
-        ageData.age = AgingMod.age
         ageData.startingDay = gameTime:getDay()
         ageData.startingMonth = gameTime:getMonth()
         ageData.startingYear = gameTime:getYear()
 
-        print("Starting year: " .. tostring(ageData.startingYear))
+        if AgingMod.age ~= 0 then
+            print("Different than 0")
+            ageData.age = AgingMod.age
+            Events.EveryTenMinutes.Add(AgingMod.UpdateAge) -- TODO CHANGE ME TO DAYS!!
+        elseif AgingMod.age == 0 or AgingMod.age == nil then
+            print("Starting panel!")
+            AgingMod_ChoiceUI.OpenPanel()
+        end
     end
-    --AgingMod.UpdateAge()
-    Events.EveryTenMinutes.Add(AgingMod.UpdateAge)
-
-
 end
 
 
-
-
-
+---------------
 
 Events.OnGameStart.Add(AgingMod.Setup)
 
 Events.OnPlayerDeath.Add(function()
-    Events.EveryTenMinutes.Remove(AgingMod.UpdateAge)
+    Events.EveryTenMinutes.Remove(AgingMod.UpdateAge)       -- TODO CHANGE ME TO DAYS!!
 end)
 
 
