@@ -51,9 +51,9 @@ AgingMod.UpdateAge = function()
 
 
     -----------------
-    -- DEBUG
-    local t = getGameTime()
-    t:setYear(t:getYear() + 1)
+    -- -- DEBUG
+    -- local t = getGameTime()
+    -- t:setYear(t:getYear() + 1)
 
 
 
@@ -62,7 +62,7 @@ AgingMod.UpdateAge = function()
 
 
 
-    print("Checking if we need to advance age")
+    --print("Checking if we need to advance age")
     local ageData = getPlayer():getModData()["AgeMod"]
     local gameTime = getGameTime()
 
@@ -71,10 +71,9 @@ AgingMod.UpdateAge = function()
     local currentDay = gameTime:getDay()
 
 
-    print("Starting year: " .. tostring(ageData.startingYear))
-
-    print("Current year: " .. tostring(currentYear))
-    print("Current age: " .. tostring(ageData.age))
+    --print("Starting year: " .. tostring(ageData.startingYear))
+    --print("Current year: " .. tostring(currentYear))
+    --print("Current age: " .. tostring(ageData.age))
 
     local oldAge = tonumber(ageData.age)
 
@@ -108,6 +107,12 @@ AgingMod.UpdateAge = function()
     end
 end
 
+AgingMod.StartChoicePanel = function()
+
+
+end
+
+
 AgingMod.Setup = function()
     -- TODO Ask player to set age if they did not
     print("Setting up age mod")
@@ -115,6 +120,14 @@ AgingMod.Setup = function()
     local ageData = player:getModData()["AgeMod"]
 
     if ageData == nil or ageData == 0 then
+
+        if AgingMod.age == 0 then
+            AgingMod.StartChoicePanel()
+        end
+
+
+
+
 
         local gameTime = getGameTime()
         player:getModData()["AgeMod"] = {}
@@ -131,6 +144,10 @@ AgingMod.Setup = function()
 
 
 end
+
+
+
+
 
 
 Events.OnGameStart.Add(AgingMod.Setup)
