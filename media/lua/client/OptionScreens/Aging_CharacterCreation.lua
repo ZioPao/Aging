@@ -59,7 +59,6 @@ local function SetHairColor(age)
         table.insert(hairColors1, {r=0.8, g=0.8, b=0.8})
     end
     CharacterCreationMain.instance.colorPickerHair:setColors(hairColors1, math.min(#hairColors1, 10), math.ceil(#hairColors1 / 10))
-    -- TODO Force apply hair!
 
     local color = CharacterCreationMain.instance.colorPickerHair.colors[1]
     CharacterCreationMain.instance.hairColorButton.backgroundColor = { r=color.r, g=color.g, b=color.b, a = 1 }

@@ -1,6 +1,5 @@
 AgingMod_ChoiceUI = ISPanel:derive("AgingMod_ChoiceUI")
 AgingMod_ChoiceUI.instance = nil
--- TODO Players shouldn't be able to close this
 
 
 

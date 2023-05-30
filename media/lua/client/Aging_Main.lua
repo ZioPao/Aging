@@ -83,16 +83,11 @@ AgingMod.UpdateAge = function()
 
 
     ---------------
-    -- DEBUG
+    --DEBUG
+    -- print("DEBUG AGE MOD")
     -- local t = getGameTime()
     -- t:setYear(t:getYear() + 1)
-
-
-
     ------------------
-
-
-
 
     --print("Checking if we need to advance age")
     local ageData = getPlayer():getModData()["AgeMod"]
@@ -112,18 +107,19 @@ AgingMod.UpdateAge = function()
     -- 01/05/1993
     --02/06/1994
     local yearDiff = currentYear - ageData.startingYear -- 1
-    if yearDiff >= 0 then
+    if yearDiff > 0 then
         local monthDiff = currentMonth - ageData.startingMonth -- 4 - 5, -1
         if monthDiff >= 0 then
             local dayDiff = currentDay - ageData.startingDay -- 
             if dayDiff >= 0 then
+                print("daydiff >= 0")
                 ageData.age = ageData.age + yearDiff
                 ageData.startingYear = currentYear
                 RunSetHairColor(oldAge, ageData.age)
-
-                
             end
         elseif yearDiff > 1 then
+            --print("yearDiff >= 0")
+
             ageData.age = ageData.age + yearDiff - 1
 
             -- Bit of a hacky way to handle it but I'm too dumb to think of something better
@@ -147,7 +143,9 @@ AgingMod.Setup = function()
     local ageData = player:getModData()["AgeMod"]
 
 
-    if ageData == nil or (ageData and (ageData.age == 0 or ageData.age == nil)) then
+    if ageData and ageData.age and ageData.age ~= 0 then
+        Events.EveryDays.Add(AgingMod.UpdateAge)
+    else
         print("Nil or age = 0")
         player:getModData()["AgeMod"] = {}
         local gameTime = getGameTime()
@@ -159,11 +157,14 @@ AgingMod.Setup = function()
         if AgingMod.age ~= 0 then
             print("Different than 0")
             ageData.age = AgingMod.age
-            Events.EveryTenMinutes.Add(AgingMod.UpdateAge) -- TODO CHANGE ME TO DAYS!!
+            Events.EveryDays.Add(AgingMod.UpdateAge)
         elseif AgingMod.age == 0 or AgingMod.age == nil then
             print("Starting panel!")
             AgingMod_ChoiceUI.OpenPanel()
+
         end
+
+
     end
 end
 
@@ -173,7 +174,7 @@ end
 Events.OnGameStart.Add(AgingMod.Setup)
 
 Events.OnPlayerDeath.Add(function()
-    Events.EveryTenMinutes.Remove(AgingMod.UpdateAge)       -- TODO CHANGE ME TO DAYS!!
+    Events.EveryDays.Remove(AgingMod.UpdateAge)
 end)
 
 
