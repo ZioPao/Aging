@@ -66,6 +66,19 @@ AgingMod.SetHairColor = function(age)
 
 end
 
+
+local function RunSetHairColor(oldAge, newAge)
+    --print("New age: " .. tostring(ageData.age))
+    -- Since it's gonna continue adding onto the desaturation, in case the player logs off for more than a year in game,
+    -- we want to keep track of that to set their correct hair color
+    for i=oldAge, newAge, 1 do
+        AgingMod.SetHairColor(i)
+    end
+
+end
+
+
+
 AgingMod.UpdateAge = function()
 
 
@@ -106,24 +119,24 @@ AgingMod.UpdateAge = function()
             if dayDiff >= 0 then
                 ageData.age = ageData.age + yearDiff
                 ageData.startingYear = currentYear
-                --AgingMod.SetHairColor(ageData.age)
+                RunSetHairColor(oldAge, ageData.age)
 
+                
             end
         elseif yearDiff > 1 then
             ageData.age = ageData.age + yearDiff - 1
 
             -- Bit of a hacky way to handle it but I'm too dumb to think of something better
             ageData.startingYear = currentYear
+            RunSetHairColor(oldAge, ageData.age)
+
         end
     end
 
+    -- for i=oldAge, ageData.age, 1 do
+    --     AgingMod.SetHairColor(i)
+    -- end
 
-    --print("New age: " .. tostring(ageData.age))
-    -- Since it's gonna continue adding onto the desaturation, in case the player logs off for more than a year in game,
-    -- we want to keep track of that to set their correct hair color
-    for i=oldAge, ageData.age, 1 do
-        AgingMod.SetHairColor(i)
-    end
 end
 
 
