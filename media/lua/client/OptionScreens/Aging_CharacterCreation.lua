@@ -17,8 +17,6 @@ local function SetHairColor(age)
         --		info:desaturate(0.5)
 
         --print(i)
-
-
         local r = info:getR() --+ greyScaler
         local g = info:getG() --+ greyScaler
         local b = info:getB() --+ greyScaler
@@ -122,8 +120,16 @@ function CharacterCreationHeader:create()
     labelMaxWid = math.max(labelMaxWid, getTextManager():MeasureStringX(UIFont.Medium, getText("UI_characreation_surname")))
     labelMaxWid = math.max(labelMaxWid, getTextManager():MeasureStringX(UIFont.Medium, getText("UI_characreation_gender")))
 
-    
-    self.ageEntry = ISTextEntryBox:new(tostring(25), self.genderCombo:getRight() + 6, self.surnameEntry:getBottom() + 6 + (entryHgt - 18) / 2, 115, entryHgt)
+    -- Compatibility with NRK Random Name
+    if getActivatedMods():contains("NRK_RandomName") then
+        local entryX = self.genderCombo:getX() - self.genderCombo:getWidth() - 6
+        self.ageEntry = ISTextEntryBox:new(tostring(25), entryX, self.surnameEntry:getBottom() + 6 + (entryHgt - 18) / 2, self.genderCombo:getWidth(), entryHgt)
+
+    else
+        self.ageEntry = ISTextEntryBox:new(tostring(25), self.genderCombo:getRight() + 6, self.surnameEntry:getBottom() + 6 + (entryHgt - 18) / 2, 115, entryHgt)
+    end
+
+
 	self.ageEntry:initialise()
 	self.ageEntry:instantiate()
     self.ageEntry:setOnlyNumbers(true)
