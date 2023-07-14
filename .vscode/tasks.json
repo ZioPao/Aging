@@ -7,11 +7,14 @@
             "label": "Create Workshop folder",
             "type": "shell",
             "options": {"statusbar": {"label": "$(combine) Assemble Mod"}},
-            "command": "python ${config:zomboid_user_folder}/make_workshop_pack.py picch ${workspaceFolderBasename}",
+            "command": "python ${config:zomboid_user_folder}/PaosCrap/make_workshop_pack.py picch ${workspaceFolderBasename}",
         },
         {
             "label": "Run Zomboid Debug No Steam",
             "type": "shell",
+            "presentation": {
+                "group": "groupZomboid"
+            },
             "command": "\"${config:zomboid_folder}\\ProjectZomboid64 - nosteam-debug.bat\"",
             "options": {"statusbar": {"label": "$(run) Zomboid client"}},
             "problemMatcher": [
@@ -31,7 +34,10 @@
         {
             "label": "Run two instances of Zomboid Debug No Steam",
             "options": {"statusbar": {"label": "$(run-all) Two Zomboid Clients"}},
-
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+              },
             "dependsOn": [
                 "Run Zomboid Debug No Steam", "Run Zomboid Debug No Steam 2"],
             "problemMatcher": []
@@ -44,16 +50,6 @@
             "problemMatcher": [
                 "$eslint-stylish"
             ]
-        },
-        {
-            "label": "Run Zomboid Test Server",
-            "options": {"statusbar": {"label": "$(run) Zomboid Server (ThePitPack)"}},
-            "type": "shell",
-            "command":"\"${config:zomboid_server_folder}\\StartServer64_nosteam_adlero.bat\"",
-            "problemMatcher": [
-                "$eslint-stylish"
-            ]
         }
-
     ]
 }
