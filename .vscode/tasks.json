@@ -10,23 +10,25 @@
             "command": "python ${config:zomboid_user_folder}/PaosCrap/make_workshop_pack.py picch ${workspaceFolderBasename}",
         },
         {
-            "label": "Run Zomboid Debug No Steam",
+            "label": "Run Zomboid Debug No Steam (42)",
             "type": "shell",
             "presentation": {
                 "group": "groupZomboid"
             },
-            "command": "\"${config:zomboid_folder}\\ProjectZomboid64 - nosteam-debug.bat\"",
-            "options": {"statusbar": {"label": "$(run) Zomboid client"}},
+            "command": "\"${config:zomboid_folder_b42}\\ProjectZomboid64 - nosteam-debug 42.bat\"",
+            "options": {"statusbar": {"label": "$(run) Zomboid client (42)"}},
             "problemMatcher": [
                 "$eslint-stylish"
             ]
         },
         {
-            "label": "Run Zomboid Debug No Steam 2",
+            "label": "Run Zomboid Debug No Steam (41)",
             "type": "shell",
-            "command": "\"${config:zomboid_folder}\\ProjectZomboid64 - nosteam-debug.bat\"",
-            "options": {"statusbar": {"hide": true}},
-
+            "presentation": {
+                "group": "groupZomboid"
+            },
+            "command": "\"${config:zomboid_folder_b41}\\ProjectZomboid64 - nosteam-debug.bat\"",
+            "options": {"statusbar": {"label": "$(run) Zomboid client (41)"}},
             "problemMatcher": [
                 "$eslint-stylish"
             ]

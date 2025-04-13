@@ -2,7 +2,7 @@ AgingMod_ChoiceUI = ISPanel:derive("AgingMod_ChoiceUI")
 AgingMod_ChoiceUI.instance = nil
 
 
-
+-- IN GAME UI, if it's an already spawned character
 
 -----------------------------------
 function AgingMod_ChoiceUI:onTextChangeAge()

@@ -1,0 +1,7 @@
+id=Aging
+name=Aging
+description=Realistic hair graying depending on age
+poster=poster.png
+icon=icon.png
+url=https://github.com/ZioPao/Aging
+versionMin=41.0
